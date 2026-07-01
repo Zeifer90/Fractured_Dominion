@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import Config from "./config";
 import GameScene from "./scenes/GameScene";
 import LeaderSelectScene from "./scenes/LeaderSelectScene";
+import RulesScene from "./scenes/RulesScene";
 
 const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -12,7 +13,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [LeaderSelectScene, GameScene], // LeaderSelect prima, poi GameScene
+  scene: [LeaderSelectScene, RulesScene, GameScene], // LeaderSelect, poi Rules, poi GameScene
   parent: "app",
 };
 
