@@ -2,16 +2,33 @@ import Phaser from "phaser";
 import gameState, { type LeaderId } from "../core/GameState";
 import Config from "../config";
 
+interface LeaderCard {
+  faction: "iron" | "shadow";
+  leaderId: LeaderId;
+  bg: Phaser.GameObjects.Graphics;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  colorHex: string;
+  titleText: Phaser.GameObjects.Text;
+  subText: Phaser.GameObjects.Text;
+}
+
 export default class LeaderSelectScene extends Phaser.Scene {
   private startBtnZone!: Phaser.GameObjects.Zone;
   private startBtnBg!: Phaser.GameObjects.Graphics;
   private infoText!: Phaser.GameObjects.Text;
+  private cards: LeaderCard[] = [];
 
   constructor() {
     super({ key: "LeaderSelectScene" });
   }
 
   create() {
+    this.cards = [];
+    gameState.reset();
+
     this.cameras.main.setBackgroundColor(Config.backgroundColor);
 
     this.add.text(450, 60, "Seleziona i Leader", {
@@ -27,11 +44,11 @@ export default class LeaderSelectScene extends Phaser.Scene {
       fontStyle: "bold",
     }).setOrigin(0.5);
 
-    this.makeLeaderCard(120, 160, 160, 100, "Vael", "Aggressione / Mobilità", "#4a90d9", () => {
+    this.makeLeaderCard(120, 160, 160, 100, "Vael", "Aggressione / Mobilità", "#4a90d9", "iron", "vael", () => {
       this.selectLeader("iron", "vael");
     });
 
-    this.makeLeaderCard(120, 280, 160, 100, "Mira", "Difesa / Controllo", "#4a90d9", () => {
+    this.makeLeaderCard(120, 280, 160, 100, "Mira", "Difesa / Controllo", "#4a90d9", "iron", "mira", () => {
       this.selectLeader("iron", "mira");
     });
 
@@ -42,11 +59,11 @@ export default class LeaderSelectScene extends Phaser.Scene {
       fontStyle: "bold",
     }).setOrigin(0.5);
 
-    this.makeLeaderCard(620, 160, 160, 100, "Kael", "Stealth / Caos", "#d28eff", () => {
+    this.makeLeaderCard(620, 160, 160, 100, "Kael", "Stealth / Caos", "#d28eff", "shadow", "kael", () => {
       this.selectLeader("shadow", "kael");
     });
 
-    this.makeLeaderCard(620, 280, 160, 100, "Seris", "Clone / Burst", "#d28eff", () => {
+    this.makeLeaderCard(620, 280, 160, 100, "Seris", "Clone / Burst", "#d28eff", "shadow", "seris", () => {
       this.selectLeader("shadow", "seris");
     });
 
@@ -76,11 +93,22 @@ export default class LeaderSelectScene extends Phaser.Scene {
     this.startBtnZone.on("pointerout", () => this.hoverStartBtn(false));
   }
 
-  private makeLeaderCard(x: number, y: number, w: number, h: number, title: string, subtitle: string, colorHex: string, onClick: () => void) {
+  private makeLeaderCard(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    title: string,
+    subtitle: string,
+    colorHex: string,
+    faction: "iron" | "shadow",
+    leaderId: LeaderId,
+    onClick: () => void
+  ) {
     const bg = this.add.graphics();
     bg.fillStyle(0x000000, 0.5);
     bg.fillRoundedRect(x, y, w, h, 8);
-    bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 1);
+    bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 0.7);
     bg.strokeRoundedRect(x, y, w, h, 8);
 
     const titleText = this.add.text(x + w / 2, y + 20, title, {
@@ -94,6 +122,20 @@ export default class LeaderSelectScene extends Phaser.Scene {
       color: "#dddddd",
     }).setOrigin(0.5, 0);
 
+    const cardInfo: LeaderCard = {
+      faction,
+      leaderId,
+      bg,
+      x,
+      y,
+      w,
+      h,
+      colorHex,
+      titleText,
+      subText,
+    };
+    this.cards.push(cardInfo);
+
     const hit = this.add.zone(x + w / 2, y + h / 2, w, h).setInteractive();
     hit.on("pointerdown", () => {
       onClick();
@@ -101,23 +143,27 @@ export default class LeaderSelectScene extends Phaser.Scene {
     });
 
     hit.on("pointerover", () => {
-      bg.clear();
-      bg.fillStyle(0x000000, 0.6);
-      bg.fillRoundedRect(x, y, w, h, 8);
-      bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 1);
-      bg.strokeRoundedRect(x, y, w, h, 8);
-      titleText.setColor("#ffffff");
-      subText.setColor("#ffffff");
+      const isSelected = gameState.leaders[faction] === leaderId;
+      if (!isSelected) {
+        bg.clear();
+        bg.fillStyle(0x000000, 0.7);
+        bg.fillRoundedRect(x, y, w, h, 8);
+        bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 1);
+        bg.strokeRoundedRect(x, y, w, h, 8);
+        subText.setColor("#ffffff");
+      }
     });
 
     hit.on("pointerout", () => {
-      bg.clear();
-      bg.fillStyle(0x000000, 0.5);
-      bg.fillRoundedRect(x, y, w, h, 8);
-      bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 1);
-      bg.strokeRoundedRect(x, y, w, h, 8);
-      titleText.setColor("#ffffff");
-      subText.setColor("#dddddd");
+      const isSelected = gameState.leaders[faction] === leaderId;
+      if (!isSelected) {
+        bg.clear();
+        bg.fillStyle(0x000000, 0.5);
+        bg.fillRoundedRect(x, y, w, h, 8);
+        bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(colorHex).color, 0.7);
+        bg.strokeRoundedRect(x, y, w, h, 8);
+        subText.setColor("#dddddd");
+      }
     });
   }
 
@@ -137,7 +183,31 @@ export default class LeaderSelectScene extends Phaser.Scene {
     const shadow = gameState.leaders.shadow ? `Shadow: ${gameState.leaders.shadow}` : "Shadow: —";
     this.infoText.setText(`${iron}  |  ${shadow}`);
 
+    this.updateCardVisuals();
     this.drawStartBtn(gameState.isReady());
+  }
+
+  private updateCardVisuals() {
+    this.cards.forEach(card => {
+      const isSelected = gameState.leaders[card.faction] === card.leaderId;
+      card.bg.clear();
+      
+      if (isSelected) {
+        card.bg.fillStyle(0x1a1a2e, 0.9);
+        card.bg.fillRoundedRect(card.x, card.y, card.w, card.h, 8);
+        card.bg.lineStyle(3, 0xf1c40f, 1); // Gold yellow border
+        card.bg.strokeRoundedRect(card.x, card.y, card.w, card.h, 8);
+        card.titleText.setColor("#f1c40f");
+        card.subText.setColor("#ffffff");
+      } else {
+        card.bg.fillStyle(0x000000, 0.5);
+        card.bg.fillRoundedRect(card.x, card.y, card.w, card.h, 8);
+        card.bg.lineStyle(2, Phaser.Display.Color.HexStringToColor(card.colorHex).color, 0.7);
+        card.bg.strokeRoundedRect(card.x, card.y, card.w, card.h, 8);
+        card.titleText.setColor("#ffffff");
+        card.subText.setColor("#dddddd");
+      }
+    });
   }
 
   private drawStartBtn(enabled: boolean) {

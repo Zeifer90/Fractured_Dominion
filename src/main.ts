@@ -8,6 +8,10 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
   width: 900,
   height: 600,
   backgroundColor: Config.backgroundColor,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   scene: [LeaderSelectScene, GameScene], // LeaderSelect prima, poi GameScene
   parent: "app",
 };
