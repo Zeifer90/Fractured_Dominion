@@ -86,7 +86,7 @@ export default class LeaderSelectScene extends Phaser.Scene {
     this.startBtnZone = this.add.zone(450, 500, 180, 40).setInteractive();
     this.startBtnZone.on("pointerdown", () => {
       if (gameState.isReady()) {
-        this.scene.start("GameScene", { leaders: gameState.leaders });
+        this.scene.start("RulesScene", { leaders: gameState.leaders });
       }
     });
     this.startBtnZone.on("pointerover", () => this.hoverStartBtn(true));

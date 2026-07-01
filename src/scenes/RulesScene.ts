@@ -9,14 +9,17 @@ export default class RulesScene extends Phaser.Scene {
   }
 
   init(data: any) {
-    this.leadersData = data;
-  }
+  this.leadersData = data;
+}
+
 
   create() {
+    console.log("RulesScene [create] started.");
     this.cameras.main.setBackgroundColor(Config.backgroundColor);
 
-    const panelX = this.scale.width / 2;
-    const panelY = this.scale.height / 2;
+    // Coordinate fisse basate sulla dimensione del gioco (900x600)
+    const panelX = 450;
+    const panelY = 300;
     const panelWidth = 540;
     const panelHeight = 400;
 
@@ -58,37 +61,47 @@ export default class RulesScene extends Phaser.Scene {
     // Pulsante "Comincia la Partita"
     const btnWidth = 240;
     const btnHeight = 44;
-    const btnX = panelX;
-    const btnY = panelY + panelHeight / 2 - 40;
+    const btnX = panelX - btnWidth / 2;
+    const btnY = panelY + panelHeight / 2 - 60;
 
     const btnBg = this.add.graphics();
     btnBg.fillStyle(0x27ae60, 1);
-    btnBg.fillRoundedRect(btnX - btnWidth / 2, btnY - btnHeight / 2, btnWidth, btnHeight, 8);
+    btnBg.fillRoundedRect(btnX, btnY, btnWidth, btnHeight, 8);
 
-    this.add.text(btnX, btnY, "COMINCIA LA PARTITA", {
+    this.add.text(btnX + btnWidth / 2, btnY + btnHeight / 2, "COMINCIA LA PARTITA", {
       fontSize: "14px",
       color: "#ffffff",
       fontStyle: "bold"
     }).setOrigin(0.5);
 
+    // Zona cliccabile allineata esattamente al bottone
     const clickZone = this.add.zone(btnX, btnY, btnWidth, btnHeight)
-      .setOrigin(0.5)
+      .setOrigin(0)
       .setInteractive({ useHandCursor: true });
 
     clickZone.on("pointerover", () => {
       btnBg.clear();
       btnBg.fillStyle(0x2ecc71, 1);
-      btnBg.fillRoundedRect(btnX - btnWidth / 2, btnY - btnHeight / 2, btnWidth, btnHeight, 8);
+      btnBg.fillRoundedRect(btnX, btnY, btnWidth, btnHeight, 8);
     });
 
     clickZone.on("pointerout", () => {
       btnBg.clear();
       btnBg.fillStyle(0x27ae60, 1);
-      btnBg.fillRoundedRect(btnX - btnWidth / 2, btnY - btnHeight / 2, btnWidth, btnHeight, 8);
+      btnBg.fillRoundedRect(btnX, btnY, btnWidth, btnHeight, 8);
     });
 
     clickZone.on("pointerdown", () => {
-      this.scene.start("GameScene", this.leadersData);
+      const leadersPayload = { leaders: this.leadersData?.leaders ?? this.leadersData };
+      this.scene.stop("RulesScene");
+      this.scene.start("GameScene", leadersPayload);
     });
+
+
   }
+  //per sicurezza
+  shutdown() {
+  this.input.removeAllListeners();
+}
+
 }

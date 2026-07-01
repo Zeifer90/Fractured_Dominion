@@ -280,7 +280,7 @@ export default class GameScene extends Phaser.Scene {
   let alliesInBase = 0;
   let enemiesInBase = 0;
 
-  console.log(`--- VERIFICA ASSEDIO IN TEMPO REALE (${currentFaction.toUpperCase()}) ---`);
+  //console.log(`--- VERIFICA ASSEDIO IN TEMPO REALE (${currentFaction.toUpperCase()}) ---`);
 
   this.units.forEach(unit => {
     let tile = this.hexGrid.getTileAt(unit.x, unit.y);
@@ -307,10 +307,10 @@ export default class GameScene extends Phaser.Scene {
 
       if (isAllyDefending) {
         alliesInBase++;
-        console.log(`[DIFENSORE] ${unit.data.faction.toUpperCase()} protegge la zona su R:${tile.row} C:${tile.col} (${tile.type})`);
+        //console.log(`[DIFENSORE] ${unit.data.faction.toUpperCase()} protegge la zona su R:${tile.row} C:${tile.col} (${tile.type})`);
       } else if (isEnemyInvading) {
         enemiesInBase++;
-        console.log(`[INVASORE] ${unit.data.faction.toUpperCase()} occupa le Pianure vitali su R:${tile.row} C:${tile.col}`);
+        //console.log(`[INVASORE] ${unit.data.faction.toUpperCase()} occupa le Pianure vitali su R:${tile.row} C:${tile.col}`);
       }
     }
   });
@@ -892,6 +892,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private updateSprintButtonUI() {
+    if (!this.sprintButton) return; // ← aggiungi questa riga
     if (this.turnManager.getCurrentFaction() !== "iron" || this.leaders.iron !== "vael") {
       this.sprintButton.setVisible(false); // Nascondi se non è il turno dell'Iron o se il leader non è Vael
       return;
