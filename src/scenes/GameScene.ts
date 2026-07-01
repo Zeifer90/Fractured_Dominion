@@ -5,7 +5,7 @@ import Unit from "../units/Unit";
 import HUD from "../ui/HUD";
 import TurnManager from "../core/TurnManager";
 import VictoryManager from "../core/VictoryManager";
-import  config  from "../config"; // Regola il percorso in base alla tua cartella
+//import  config  from "../config"; // Regola il percorso in base alla tua cartella
 
 
 interface LegendaryChest {
@@ -858,11 +858,11 @@ export default class GameScene extends Phaser.Scene {
     this.updateSiegeUI();
   }
 
-  private showVictory(factionName: string) {
+  /* private showVictory(factionName: string) {
     this.add.graphics().fillStyle(0x000000, 0.85).fillRect(200, 200, 500, 150).setDepth(20);
     this.add.text(450, 265, `${factionName} vince!`, { fontSize: "26px", color: "#f1c40f", fontStyle: "bold" }).setOrigin(0.5).setDepth(21);
     this.add.text(450, 320, "Ricarica la pagina per rigiocare", { fontSize: "14px", color: "#ffffff" }).setOrigin(0.5).setDepth(21);
-  }
+  } */
 
 
     //salva lo stato corrente per quanto riguarda l'assedio tra fazioni (da passare poi al pannello apposito da mostrare a UI)
