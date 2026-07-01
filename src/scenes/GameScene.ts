@@ -65,19 +65,19 @@ export default class GameScene extends Phaser.Scene {
 
     this.turnManager.initUnits(this.units.map(u => u.id));
 
-    this.turnText = this.add.text(20, 10, "", {
-      fontSize: "16px",
+    this.turnText = this.add.text(10, 10, "", { // Spostato a X: 10
+      fontSize: "14px", // Leggermente più piccolo per stare comodo nell'intercapedine
       color: "#ffffff",
       fontStyle: "bold",
       backgroundColor: "#000000",
-      padding: { x: 10, y: 5 },
+      padding: { x: 6, y: 5 },
     });
 
-    this.apText = this.add.text(20, 40, "", {
-      fontSize: "13px",
+    this.apText = this.add.text(10, 45, "", { // Spostato a X: 10 e Y: 45
+      fontSize: "12px",
       color: "#f1c40f",
       backgroundColor: "#000000",
-      padding: { x: 10, y: 4 },
+      padding: { x: 6, y: 4 },
     });
 
     // Testo UI allarme assedio posizionato in alto al centro
@@ -139,33 +139,34 @@ export default class GameScene extends Phaser.Scene {
     this.updateGlobalStatsPanel();
 
     // ==========================================
-    // ABILITÀ ATTIVA LEADER: VAEL (BLOCCO 3)
+    // ABILITÀ ATTIVA LEADER: VAEL (BLOCCO 3) - UI MINIMALE
     // ==========================================
-    this.sprintButton = this.add.text(20, 70, "⚡ ABILITÀ: SPRINT (CD: Pronta)", {
-      fontSize: "12px",
+    this.sprintButton = this.add.text(5, 75, "⚡ SPRINT", {
+      fontSize: "11px",
       color: "#ffffff",
-      backgroundColor: "#2980b9", // Blu Iron
-      padding: { x: 8, y: 4 },
+      backgroundColor: "#27ae60", // Verde Smeraldo (Disponibile)
+      padding: { x: 4, y: 3 },
       fontStyle: "bold"
     })
+    .setOrigin(0, 0) // Forza l'ancoraggio a sinistra contro il bordo dello schermo
     .setDepth(150)
     .setScrollFactor(0)
     .setInteractive({ useHandCursor: true });
 
     this.sprintButton.on("pointerover", () => {
-      if (this.vaelCooldown === 0 && !this.isSprintActive) this.sprintButton.setBackgroundColor("#3498db");
+      if (this.vaelCooldown === 0 && !this.isSprintActive) this.sprintButton.setBackgroundColor("#2ecc71"); // Verde più chiaro al passaggio del mouse
     });
 
     this.sprintButton.on("pointerout", () => {
-      if (this.vaelCooldown === 0 && !this.isSprintActive) this.sprintButton.setBackgroundColor("#2980b9");
+      if (this.vaelCooldown === 0 && !this.isSprintActive) this.sprintButton.setBackgroundColor("#27ae60"); // Ritorna al verde base
     });
 
     this.sprintButton.on("pointerdown", () => {
       this.useVaelAbility();
     });
 
-
-
+    // Forza l'allineamento e lo stato visivo istantaneo all'avvio
+    this.updateSprintButtonUI();
   }
 
   private updateTurnIndicator() {
@@ -870,8 +871,9 @@ export default class GameScene extends Phaser.Scene {
 
     // 3. Attivazione dello stato
     this.isSprintActive = true;
-    this.sprintButton.setBackgroundColor("#d35400"); // Cambia in Arancione/Fuoco per indicare che è "In attesa"
-    this.sprintButton.setText("⚡ SPRINT IN ATTESA...");
+    
+    // Sincronizziamo lo stile UI minimale anche al momento del clic immediato
+    this.updateSprintButtonUI();
     
     console.log("[LEADER SKILL] Vael attiva Sprint. La prossima unità Iron selezionata avrà +1 PA!");
   }
@@ -892,22 +894,45 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private updateSprintButtonUI() {
-    if (!this.sprintButton) return; // ← aggiungi questa riga
-    if (this.turnManager.getCurrentFaction() !== "iron" || this.leaders.iron !== "vael") {
-      this.sprintButton.setVisible(false); // Nascondi se non è il turno dell'Iron o se il leader non è Vael
+    if (!this.sprintButton) return;
+
+    // 1. Nascondi se non è il turno dell'Iron
+    if (this.turnManager.getCurrentFaction() !== "iron") {
+      this.sprintButton.setVisible(false);
       return;
     }
 
     this.sprintButton.setVisible(true);
+
+    // POSIZIONAMENTO CRITICO UI: Schiacciato al bordo sinistro (X: 5), sotto i testi di Turno e AP
+    this.sprintButton.setX(5); 
+    this.sprintButton.setY(75); 
+    this.sprintButton.setOrigin(0, 0); // Forza l'allineamento a sinistra per evitare overflow a specchio
+
+    // STILE MINIMALISTA (Font mini, padding ridotto al minimo per non fare spessore)
+    const minimalStyle = {
+      fontSize: '11px',
+      fontStyle: 'bold',
+      padding: { x: 4, y: 3 }
+    };
+
     if (this.vaelCooldown > 0) {
-      this.sprintButton.setBackgroundColor("#7f8c8d"); // Grigio Cooldown
-      this.sprintButton.setText(`⚡ SPRINT (CD: ${this.vaelCooldown}t)`);
+      // STATO: COOLDOWN (Es: "⏳ 2") -> Larghezza stimata: ~30px
+      this.sprintButton.setText(`⏳ ${this.vaelCooldown}`);
+      this.sprintButton.setBackgroundColor("#34495e"); // Grigio scuro/Inattivo
+      this.sprintButton.setStyle({ ...minimalStyle, fill: '#7f8c8d' });
+      
     } else if (this.isSprintActive) {
-      this.sprintButton.setBackgroundColor("#d35400");
-      this.sprintButton.setText("⚡ SPRINT IN ATTESA...");
+      // STATO: ATTIVO/IN ATTESA (Es: "⚡ [ON]") -> Larghezza stimata: ~50px
+      this.sprintButton.setText("⚡ [ON]");
+      this.sprintButton.setBackgroundColor("#d35400"); // Arancione Fuoco/Attivo
+      this.sprintButton.setStyle({ ...minimalStyle, fill: '#ffffff' });
+
     } else {
-      this.sprintButton.setBackgroundColor("#2980b9");
-      this.sprintButton.setText("⚡ ABILITÀ: SPRINT (Pronta)");
+      // STATO: PRONTO ALL'USO (Es: "⚡ SPRINT") -> Larghezza stimata: ~60px
+      this.sprintButton.setText("⚡ SPRINT");
+      this.sprintButton.setBackgroundColor("#27ae60"); // Verde Smeraldo / Disponibile
+      this.sprintButton.setStyle({ ...minimalStyle, fill: '#ffffff' });
     }
   }
 }
