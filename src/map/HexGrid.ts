@@ -29,7 +29,7 @@ export default class HexGrid {
     const cols = Config.gridCols;
     const rows = Config.gridRows;
     const offsetX = 100;
-    const offsetY = 60;
+    const offsetY = 80;
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {

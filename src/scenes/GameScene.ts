@@ -263,6 +263,7 @@ export default class GameScene extends Phaser.Scene {
     const leaderId = faction === "iron" ? this.leaders.iron : this.leaders.shadow;
     this.hud.setLeader(faction, leaderId);
     this.hud.setCooldown(3); 
+    this.updateSprintButtonUI();
   }
 
   private updateAPIndicator(unit: Unit | null) {
@@ -976,8 +977,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private updateSprintButtonUI() {
-    if (this.turnManager.getCurrentFaction() !== "iron") {
-      this.sprintButton.setVisible(false); // Nascondi se tocca alle Ombre
+    if (this.turnManager.getCurrentFaction() !== "iron" || this.leaders.iron !== "vael") {
+      this.sprintButton.setVisible(false); // Nascondi se non è il turno dell'Iron o se il leader non è Vael
       return;
     }
 
